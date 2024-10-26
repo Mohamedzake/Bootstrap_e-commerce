@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-commerce Dashboard</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      .sidebar {
+        min-height: 100vh;
+        background-color: #2b3a4a;
+        color: #8391a2;
+        transition: transform 0.3s ease;
+        /* width: 250px; */
+      }
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+        display: none;
+      }
+      .main-content {
+        transition: margin-left 0.3s ease;
+        /* margin-left: 250px;  */
+      }
+      .main-content.expanded {
+        width: 100%;
+        /* margin-left: 0;  */
+      }
+      .sidebar .nav-link {
+        color: #8391a2;
+        padding: 0.5rem 1rem;
+      }
+      .sidebar .nav-link:hover {
+        color: #fff;
+      }
+      .sidebar .nav-link.active {
+        color: #467fcf;
+        background-color: rgba(70, 127, 207, 0.2);
+      }
+      .badge-new {
+        background-color: #467fcf;
+        color: white;
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+      }
+      .product-img {
+        max-width: 50px;
+        height: auto;
+      }
+      .table thead th,
+      .table tbody td {
+        vertical-align: middle;
+      }
+      .content-section {
+        display: none;
+      }
+
+      .nav-item .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        transform: translate(50%, -50%);
+      }
+      .nav-link {
+        position: relative;
+      }
+      .search-input {
+        background-color: #f8f9fa;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        width: 250px;
+      }
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+
+      .sidebar {
+        position: sticky;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          left: 0;
+          top: 0;
+          bottom: 0;
+          z-index: 1000;
+          transform: translateX(-100%);
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .sidebar.show {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          width: 100%;
+          flex: 0 0 100%;
+          max-width: 100%;
+        }
+      }
+      @media (max-width: 1536px) {
+        .sidebar {
+          width: 20%;
+        }
+        .main-content {
+          width: 80%;
+        }
+      }
+      @media (max-width: 1200px) {
+        .sidebar {
+          width: 25%;
+        }
+        .main-content {
+          width: 75%;
+        }
+      }
+      .product-thumbnail {
+        width: 70px;
+        height: 150px;
+      }
+      .main-imgD {
+        width: 75%;
+        height: 400px;
+      }
+      .container-area {
+        background-color: #f2f2f2;
+      }
+      .content-area {
+        padding: 1rem;
+        background-color: #ffffff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+      }
+
+      .payment-badge {
+        width: 120px;
+        text-align: center;
+      }
+      .status-badge {
+        width: 90px;
+        text-align: center;
+      }
+      .status-paid {
+        background-color: #e7f7ed;
+        color: #1d804f;
+      }
+      .status-failed {
+        background-color: #fde8e8;
+        color: #dc2626;
+      }
+      .status-process {
+        background-color: #fff7e6;
+        color: #d97706;
+      }
+      .payment-method {
+        background-color: #f3f4f6;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+
+      .profile-picture {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .timeline-item {
+        position: relative;
+        /* padding-left: 20px; */
+        border-left: 2px solid #ddd;
+        margin-bottom: 20px;
+      }
+
+      .timeline-item {
+        display: flex;
+        align-items: flex-start;
+      }
+      .timeline-item .timestamp {
+        color: #666;
+        font-size: 14px;
+      }
+      .activity-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+        border: 2px solid green;
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="sidebar py-3" id="sidebar">
+          <div class="d-flex align-items-center mb-4 px-3">
+            <i class="fas fa-layer-group me-2 text-primary"></i>
+            <h5 class="mb-0 text-white">AppStack</h5>
+          </div>
+
+          <div class="nav flex-column">
+            <div class="nav-item">
+              <a class="nav-link" href="#" onclick="showContent('dashboard')">
+                <i class="fas fa-chart-line me-2"></i>
+                Dashboards
+                <span class="badge badge-new float-end">5</span>
+              </a>
+            </div>
+
+            <div class="nav-item">
+              <a
+                class="nav-link collapsed"
+                data-bs-toggle="collapse"
+                href="#ecommerceMenu"
+              >
+                <i class="fas fa-shopping-cart me-2"></i>
+                E-Commerce
+                <i class="fas fa-chevron-down float-end"></i>
+              </a>
+              <div class="collapse show" id="ecommerceMenu">
+                <div class="nav flex-column ms-3">
+                  <a
+                    class="nav-link active"
+                    href="#"
+                    onclick="showContent('products')"
+                    >Products</a
+                  >
+                  <a
+                    class="nav-link"
+                    href="#"
+                    onclick="showContent('productDetails')"
+                    >Product Details</a
+                  >
+                  <a class="nav-link" href="#" onclick="showContent('orders')"
+                    >Orders</a
+                  >
+                  <a
+                    class="nav-link"
+                    href="#"
+                    onclick="showContent('customers')"
+                    >Customers</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="main-content px-4 py-3 container-area" id="mainContent">
+          <nav
+            class="navbar navbar-expand-lg navbar-light bg-white border-bottom mb-5"
+          >
+            <div class="container-fluid">
+              <button class="btn btn-outline-secondary" id="toggleSidebarBtn">
+                <i class="fas fa-bars"></i>
+              </button>
+
+              <div class="d-flex align-items-center">
+                <div class="input-group">
+                  <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search projects..."
+                  />
+                  <span class="input-group-text bg-light border-0">
+                    <i class="fas fa-search text-muted"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto align-items-center">
+                  <li class="nav-item dropdown">
+                    <a
+                      class="nav-link dropdown-toggle"
+                      href="#"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                    >
+                      Mega menu
+                    </a>
+                  </li>
+
+                  <!-- Notifications -->
+                  <li class="nav-item mx-2">
+                    <a class="nav-link" href="#">
+                      <i class="far fa-bell"></i>
+                      <span class="badge bg-primary rounded-pill">4</span>
+                    </a>
+                  </li>
+
+                  <!-- Dark Mode Toggle -->
+                  <li class="nav-item mx-2">
+                    <a class="nav-link" href="#">
+                      <i class="far fa-moon"></i>
+                    </a>
+                  </li>
+
+                  <!-- Language/Region -->
+                  <li class="nav-item mx-2">
+                    <a class="nav-link" href="#">
+                      <img
+                        src="EG_Flag.jpg"
+                        alt="EG Flag"
+                        class="me-1"
+                        style="height: 16px"
+                      />
+                    </a>
+                  </li>
+
+                  <!-- User Profile -->
+                  <li class="nav-item dropdown ms-2">
+                    <a
+                      class="nav-link dropdown-toggle d-flex align-items-center"
+                      href="#"
+                      role="button"
+                      data-bs-toggle="dropdown"
+                    >
+                      <img
+                        src="avatar.jpg"
+                        alt="User Avatar"
+                        class="user-avatar me-2"
+                      />
+                      <span>Chris Wood</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+
+          <div id="contentArea" class="">
+            <div class="content-section content-area" id="dashboardContent">
+              <h5>Dashboard Content</h5>
+              <p>Welcome to the dashboard!</p>
+            </div>
+
+            <div class="content-section content-area" id="productsContent">
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <div class="d-flex align-items-center">
+                  <div class="input-group">
+                    <input
+                      type="search"
+                      class="search-input"
+                      placeholder="Search projects..."
+                    />
+                    <span class="input-group-text bg-primary border-0">
+                      <i class="fas fa-search text-muted"></i>
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary">
+                    <span> <i class="bi bi-download text-primary"></i></span>
+                    Export
+                  </button>
+                  <button class="btn btn-primary">New Product</button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-body">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </th>
+                        <th>Item Name</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Category</th>
+                        <th>Rating</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              value=""
+                            />
+                          </div>
+                        </td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <img
+                              src="img/im_1.webp"
+                              class="product-img me-2"
+                              alt="iPad Pro"
+                            />
+                            <div>
+                              <div>Apple iPad Pro</div>
+                              <small class="text-muted">Silver</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>$1,399.00</td>
+                        <td>48</td>
+                        <td>Tablets</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <i class="fas fa-star text-warning"></i>
+                            <span class="ms-1">4.6</span>
+                            <small class="text-muted ms-1">(55)</small>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-outline-primary">
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div
+                  class="d-flex justify-content-between align-items-center mt-3 p-2"
+                >
+                  <div class="text-secondary">
+                    Showing 1 to 10 of 20 entries
+                  </div>
+                  <nav>
+                    <ul class="pagination mb-0">
+                      <li class="page-item">
+                        <a class="page-link" href="#">«</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">‹</a>
+                      </li>
+                      <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">›</a>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">»</a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+
+            <div class="container content-section" id="productDetailsContent">
+              <h1 class="mb-4">Product Details</h1>
+              <div class="row content-area mb-5">
+                <div class="col-md-6">
+                  <div class="row">
+                    <div class="col-3">
+                      <img
+                        src="img/im_1.webp"
+                        alt="Product Image 1"
+                        class="img-fluid mb-3 product-thumbnail active"
+                      />
+                    </div>
+                    <div class="col-3">
+                      <img
+                        src="img/im_2.webp"
+                        alt="Product Image 2"
+                        class="img-fluid mb-3 product-thumbnail"
+                      />
+                    </div>
+                    <div class="col-3">
+                      <img
+                        src="img/im_3.webp"
+                        alt="Product Image 3"
+                        class="img-fluid mb-3 product-thumbnail"
+                      />
+                    </div>
+                    <div class="col-3">
+                      <img
+                        src="img/im_4.webp"
+                        alt="Product Image 4"
+                        class="img-fluid mb-3 product-thumbnail"
+                      />
+                    </div>
+                  </div>
+                  <div class="main-product-image">
+                    <img
+                      src="img/im_1.webp"
+                      alt="Product Image"
+                      class="img-fluid main-imgD"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h2 class="mb-3">Apple iPhone 15 Pro Max</h2>
+                  <p class="mb-2">4.6 out of 40 Reviews</p>
+                  <p class="text-muted mb-4">Price: $1499 USD</p>
+                  <p class="mb-3">
+                    Introducing the Apple iPhone 15 Pro Max 256GB in Blue
+                    Titanium. Experience unparalleled performance with the
+                    lightning-fast A17 Pro chip, perfect for gaming and seamless
+                    multitasking. Capture stunning photos and videos with the
+                    triple-lens camera system, including standard, wide-angle,
+                    and telephoto lenses, complete with Night mode for low-light
+                    shots.
+                  </p>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-4"
+                  >
+                    <button class="btn btn-primary">Buy now</button>
+                    <button class="btn btn-secondary">Add to cart</button>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <p class="font-weight-bold mb-1">Storage:</p>
+                      <p class="mb-4">256 GB</p>
+                    </div>
+                    <div class="col-6">
+                      <p class="font-weight-bold mb-1">Megapixels:</p>
+                      <p class="mb-4">48 MP</p>
+                    </div>
+                    <div class="col-6">
+                      <p class="font-weight-bold mb-1">Battery:</p>
+                      <p class="mb-4">29 hours</p>
+                    </div>
+                    <div class="col-6">
+                      <p class="font-weight-bold mb-1">Warranty:</p>
+                      <p class="mb-4">24 Months</p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-12">
+                      <p class="font-weight-bold mb-1">Color:</p>
+                      <div class="d-grid gap-2 d-md-block">
+                        <button class="btn btn-primary" type="button">
+                          Blue
+                        </button>
+                        <button class="btn btn-primary" type="button">
+                          White
+                        </button>
+                        <button class="btn btn-primary" type="button">
+                          Natural
+                        </button>
+                      </div>
+                      <!-- <div class="d-flex">
+                        <div class="mr-3">
+                          <input
+                            type="radio"
+                            name="color"
+                            id="color-blue"
+                            checked
+                          />
+                          <label
+                            for="color-blue"
+                            class="btn btn-outline-secondary"
+                            >Blue</label
+                          >
+                        </div>
+                        <div class="mr-3">
+                          <input type="radio" name="color" id="color-white" />
+                          <label
+                            for="color-white"
+                            class="btn btn-outline-secondary"
+                            >White</label
+                          >
+                        </div>
+                        <div>
+                          <input type="radio" name="color" id="color-natural" />
+                          <label
+                            for="color-natural"
+                            class="btn btn-outline-secondary"
+                            >Natural</label
+                          >
+                        </div>
+                      </div> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h1 class="mb-4">Related products</h1>
+              <div class="row content-area">
+                <div class="col-md-4">
+                  <img
+                    src="https://via.placeholder.com/300x300"
+                    alt="Apple iPad Pro"
+                    class="img-fluid"
+                  />
+                  <h3 class="mt-3">Apple iPad Pro</h3>
+                  <p class="text-muted">4.6 out of 55 Reviews</p>
+                  <p class="font-weight-bold">$1,399.00</p>
+                </div>
+                <div class="col-md-4">
+                  <img
+                    src="https://via.placeholder.com/300x300"
+                    alt="Apple Watch SE"
+                    class="img-fluid"
+                  />
+                  <h3 class="mt-3">Apple Watch SE</h3>
+                  <p class="text-muted">4.7 out of 40 Reviews</p>
+                  <p class="font-weight-bold">$299.00</p>
+                </div>
+                <div class="col-md-4">
+                  <img
+                    src="https://via.placeholder.com/300x300"
+                    alt="Apple MacBook Pro 16"
+                    class="img-fluid"
+                  />
+                  <h3 class="mt-3">Apple MacBook Pro 16"</h3>
+                  <p class="text-muted">4.7 out of 45 Reviews</p>
+                  <p class="font-weight-bold">$2,399.00</p>
+                </div>
+              </div>
+              <h2 class="mb-4 mt-5">Specifications</h2>
+              <div class="row content-area">
+                <div class="col-12">
+                  <table class="table table-bordered">
+                    <tbody>
+                      <tr>
+                        <th scope="row">Category</th>
+                        <td>Smartphones</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Brand</th>
+                        <td>Apple</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Product number</th>
+                        <td>935277</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Warranty</th>
+                        <td>24 Months</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Color</th>
+                        <td>Blue</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Year Introduced</th>
+                        <td>2023</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Operating system</th>
+                        <td>iOS</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Operation system when introduced</th>
+                        <td>iOS 17</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Update frequency</th>
+                        <td>Each quarter</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Date of last security update</th>
+                        <td>September 2028</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div class="content-section content-area" id="ordersContent">
+              <div
+                class="d-flex justify-content-between align-items-center mb-4"
+              >
+                <div class="d-flex align-items-center">
+                  <div class="input-group">
+                    <input
+                      type="search"
+                      class="search-input"
+                      placeholder="Search projects..."
+                    />
+                    <span class="input-group-text bg-primary border-0">
+                      <i class="fas fa-search text-muted"></i>
+                    </span>
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-outline-secondary">
+                    <span> <i class="bi bi-download text-primary"></i></span>
+                    Export
+                  </button>
+                  <button class="btn btn-primary">New Product</button>
+                </div>
+              </div>
+              <div class="container mt-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle">
+                        <thead>
+                          <tr class="text-secondary">
+                            <th>
+                              <input type="checkbox" class="form-check-input" />
+                            </th>
+                            <th>Order ID</th>
+                            <th>Billing Name</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Payment Method</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK01</td>
+                            <td>Tony Sheley</td>
+                            <td>July 5, 2023</td>
+                            <td>$350 USD</td>
+                            <td>
+                              <span class="payment-method">Mastercard</span>
+                            </td>
+                            <td>
+                              <span class="badge status-paid status-badge"
+                                >Paid</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK02</td>
+                            <td>Suzanna Miller</td>
+                            <td>July 20, 2023</td>
+                            <td>$450 USD</td>
+                            <td><span class="payment-method">Visa</span></td>
+                            <td>
+                              <span class="badge status-failed status-badge"
+                                >Failed</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK01</td>
+                            <td>Tony Sheley</td>
+                            <td>July 5, 2023</td>
+                            <td>$350 USD</td>
+                            <td>
+                              <span class="payment-method">Mastercard</span>
+                            </td>
+                            <td>
+                              <span class="badge status-paid status-badge"
+                                >Paid</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK02</td>
+                            <td>Suzanna Miller</td>
+                            <td>July 20, 2023</td>
+                            <td>$450 USD</td>
+                            <td><span class="payment-method">Visa</span></td>
+                            <td>
+                              <span class="badge status-failed status-badge"
+                                >Failed</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK01</td>
+                            <td>Tony Sheley</td>
+                            <td>July 5, 2023</td>
+                            <td>$350 USD</td>
+                            <td>
+                              <span class="payment-method">Mastercard</span>
+                            </td>
+                            <td>
+                              <span class="badge status-paid status-badge"
+                                >Paid</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK02</td>
+                            <td>Suzanna Miller</td>
+                            <td>July 20, 2023</td>
+                            <td>$450 USD</td>
+                            <td><span class="payment-method">Visa</span></td>
+                            <td>
+                              <span class="badge status-failed status-badge"
+                                >Failed</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK01</td>
+                            <td>Tony Sheley</td>
+                            <td>July 5, 2023</td>
+                            <td>$350 USD</td>
+                            <td>
+                              <span class="payment-method">Mastercard</span>
+                            </td>
+                            <td>
+                              <span class="badge status-paid status-badge"
+                                >Paid</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="checkbox" class="form-check-input" />
+                            </td>
+                            <td>#SK02</td>
+                            <td>Suzanna Miller</td>
+                            <td>July 20, 2023</td>
+                            <td>$450 USD</td>
+                            <td><span class="payment-method">Visa</span></td>
+                            <td>
+                              <span class="badge status-failed status-badge"
+                                >Failed</span
+                              >
+                            </td>
+                            <td>
+                              <button class="btn btn-sm btn-light">View</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div
+                      class="d-flex justify-content-between align-items-center mt-3"
+                    >
+                      <div class="text-secondary">
+                        Showing 1 to 10 of 20 entries
+                      </div>
+                      <nav>
+                        <ul class="pagination mb-0">
+                          <li class="page-item">
+                            <a class="page-link" href="#">«</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="#">‹</a>
+                          </li>
+                          <li class="page-item active">
+                            <a class="page-link" href="#">1</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="#">2</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="#">›</a>
+                          </li>
+                          <li class="page-item">
+                            <a class="page-link" href="#">»</a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="content-section" id="customersContent">
+              <h2 class="mb-1">Customers</h2>
+              <div class="container-fluid my-2">
+                <div class="row">
+                  <div class="col-8">
+                    <div
+                      class="d-flex justify-content-between align-items-center rounded-0 content-area"
+                    >
+                      <div class="d-flex align-items-center">
+                        <div class="input-group">
+                          <input
+                            type="search"
+                            class="search-input"
+                            placeholder="Search projects..."
+                          />
+                          <span class="input-group-text bg-primary border-0">
+                            <i class="fas fa-search text-muted"></i>
+                          </span>
+                        </div>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary">
+                          <span>
+                            <i class="bi bi-download text-primary"></i
+                          ></span>
+                          Export
+                        </button>
+                        <button class="btn btn-primary">New Product</button>
+                      </div>
+                    </div>
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Company</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">1</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Angelica Ramos
+                          </td>
+                          <td>The Wiz</td>
+                          <td>angelica@ramos.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">2</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Ashton Cox
+                          </td>
+                          <td>Levitz Furniture</td>
+                          <td>ashton@cox.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">3</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Brenden Wagner
+                          </td>
+                          <td>The Wiz</td>
+                          <td>brenden@wagner.com</td>
+                          <td>
+                            <span class="badge bg-warning">Inactive</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th scope="row">4</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Charde Marshall
+                          </td>
+                          <td>Price Savers</td>
+                          <td>charde@marshall.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">5</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Doris Wilder
+                          </td>
+                          <td>Red Robin Stores</td>
+                          <td>doris@wilder.com</td>
+                          <td>
+                            <span class="badge bg-warning">Inactive</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th scope="row">1</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Angelica Ramos
+                          </td>
+                          <td>The Wiz</td>
+                          <td>angelica@ramos.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">2</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Ashton Cox
+                          </td>
+                          <td>Levitz Furniture</td>
+                          <td>ashton@cox.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">3</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Brenden Wagner
+                          </td>
+                          <td>The Wiz</td>
+                          <td>brenden@wagner.com</td>
+                          <td>
+                            <span class="badge bg-warning">Inactive</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th scope="row">4</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Charde Marshall
+                          </td>
+                          <td>Price Savers</td>
+                          <td>charde@marshall.com</td>
+                          <td><span class="badge bg-success">Active</span></td>
+                        </tr>
+                        <tr>
+                          <th scope="row">5</th>
+                          <td>
+                            <img
+                              src="avatar.jpg"
+                              class="profile-picture me-2"
+                            />Doris Wilder
+                          </td>
+                          <td>Red Robin Stores</td>
+                          <td>doris@wilder.com</td>
+                          <td>
+                            <span class="badge bg-warning">Inactive</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                          <img src="avatar.jpg" class="profile-picture me-3" />
+                          <div>
+                            <h5 class="card-title mb-0">Angelica Ramos</h5>
+                            <p class="card-text text-muted">The Wiz</p>
+                          </div>
+                        </div>
+                        <p class="card-text">
+                          Lorem ipsum dolor sit amet, consectetur adipiscing
+                          elit, sed do eiusmod tempor incididunt ut labore et
+                          dolore magna aliqua.
+                        </p>
+                        <div class="row">
+                          <div class="col-12">
+                            <table class="table table-bordered">
+                              <tbody>
+                                <tr>
+                                  <th scope="row">Name</th>
+                                  <td>Angelica Ramos</td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">Company</th>
+                                  <td>The Wiz</td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">Email</th>
+                                  <td>angelica@ramos.com</td>
+                                </tr>
+                                <tr>
+                                  <th scope="row">Status</th>
+                                  <td>
+                                    <span class="badge bg-success">Active</span>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        <div class="container my-5">
+                          <div class="row">
+                            <div class="col-12">
+                              <h5>Activity</h5>
+                              <div class="timeline">
+                                <div class="timeline-item">
+                                  <div class="activity-icon"></div>
+                                  <div>
+                                    <p>Signed out</p>
+                                    <p>Nam pretium turpis suscipit...</p>
+                                  </div>
+                                  <div class="d-flex align-items-center">
+                                    <span class="timestamp me-3">30m ago</span>
+                                  </div>
+                                </div>
+                                <div class="timeline-item">
+                                  <div class="activity-icon"></div>
+                                  <div>
+                                    <p>Created invoice #1204</p>
+                                    <p>Sed aliquam ultrices arcu...</p>
+                                  </div>
+                                  <div class="d-flex align-items-center">
+                                    <span class="timestamp me-3">2h ago</span>
+                                  </div>
+                                </div>
+                                <div class="timeline-item">
+                                  <div class="activity-icon"></div>
+                                  <div>
+                                    <p>Discarded invoice #1147</p>
+                                    <p>Nam pretium, suscipit...</p>
+                                  </div>
+                                  <div class="d-flex align-items-center">
+                                    <span class="timestamp me-3">3h ago</span>
+                                  </div>
+                                </div>
+                                <div class="timeline-item">
+                                  <div class="activity-icon"></div>
+                                  <div>
+                                    <p>Signed in</p>
+                                    <p>Curabitur euismod vitae...</p>
+                                  </div>
+                                  <div class="d-flex align-items-center">
+                                    <span class="timestamp me-3">3h ago</span>
+                                  </div>
+                                </div>
+                                <div class="timeline-item">
+                                  <div class="activity-icon"></div>
+                                  <div>
+                                    <p>Signed up</p>
+                                    <p>Sed aliquam, ante arcu...</p>
+                                  </div>
+                                  <div class="d-flex align-items-center">
+                                    <span class="timestamp me-3">2d ago</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- <div class="timeline">
+                          <div class="timeline-item">
+                            <div class="timeline-time">30m ago</div>
+                            <div class="timeline-content">Signed out</div>
+                          </div>
+                          <div class="timeline-item">
+                            <div class="timeline-time">2h ago</div>
+                            <div class="timeline-content">
+                              Created invoice #1204
+                            </div>
+                          </div>
+                          <div class="timeline-item">
+                            <div class="timeline-time">3h ago</div>
+                            <div class="timeline-content">
+                              Discarded invoice #1147
+                            </div>
+                          </div>
+                          <div class="timeline-item">
+                            <div class="timeline-time">3h ago</div>
+                            <div class="timeline-content">Signed in</div>
+                          </div>
+                          <div class="timeline-item">
+                            <div class="timeline-time">2d ago</div>
+                            <div class="timeline-content">Signed up</div>
+                          </div>
+                        </div> -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer class="bg-light py-3 mt-5">
+            <div
+              class="container d-flex flex-column flex-md-row justify-content-between align-items-center"
+            >
+              <div class="d-flex flex-column flex-md-row">
+                <a
+                  href="#"
+                  class="text-decoration-none text-muted me-md-3 mb-2 mb-md-0"
+                  >Support</a
+                >
+                <a
+                  href="#"
+                  class="text-decoration-none text-muted me-md-3 mb-2 mb-md-0"
+                  >Help Center</a
+                >
+                <a
+                  href="#"
+                  class="text-decoration-none text-muted me-md-3 mb-2 mb-md-0"
+                  >Privacy</a
+                >
+                <a href="#" class="text-decoration-none text-muted"
+                  >Terms of Service</a
+                >
+              </div>
+
+              <div class="text-muted mt-2 mt-md-0">
+                &copy; 2024 - MohamedZaki
+              </div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+    <script>
+      function showContent(section) {
+        const sections = document.querySelectorAll(".content-section");
+        sections.forEach((sec) => (sec.style.display = "none"));
+
+        document.getElementById(section + "Content").style.display = "block";
+
+        const links = document.querySelectorAll(".nav-link");
+        links.forEach((link) => link.classList.remove("active"));
+        const activeLink = document.querySelector(`a[onclick*="${section}"]`);
+        if (activeLink) {
+          activeLink.classList.add("active");
+        }
+      }
+
+      document
+        .getElementById("toggleSidebarBtn")
+        .addEventListener("click", function () {
+          const sidebar = document.getElementById("sidebar");
+          const mainContent = document.getElementById("mainContent");
+
+          sidebar.classList.toggle("collapsed");
+          mainContent.classList.toggle("expanded");
+        });
+
+      showContent("products");
+
+      const productThumbnails = document.querySelectorAll(".product-thumbnail");
+      const mainProductImage = document.querySelector(
+        ".main-product-image img"
+      );
+
+      productThumbnails.forEach((thumbnail) => {
+        thumbnail.addEventListener("click", () => {
+          productThumbnails.forEach((thumb) =>
+            thumb.classList.remove("active")
+          );
+          thumbnail.classList.add("active");
+          mainProductImage.src = thumbnail.src;
+        });
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
